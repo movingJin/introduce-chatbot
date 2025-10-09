@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { ProfileMap, EditProfileRequest } from '../types';
 
 // API Base URL - 환경 변수나 설정에서 관리할 수 있습니다
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = '/api';
 
 // Axios 인스턴스 생성
 const api = axios.create({

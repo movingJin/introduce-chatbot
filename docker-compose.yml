@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "22752:80"
+    container_name: introduce-chatbot-client
+    networks:
+      - introduce-chatbot-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: introduce-chatbot-server
+    environment:
+      - PYTHONPATH=/workspace
+    networks:
+      - introduce-chatbot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  introduce-chatbot-network:
+    driver: bridge
+
+volumes:
+  server_data:

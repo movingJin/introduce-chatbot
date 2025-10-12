@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/answer")
-def notices_total(query: str) -> str:
-    result = SummaryNode().run(query)
+def notices_total(chain_id: str, query: str) -> str:
+    result = SummaryNode().run(chain_id, query)
     answer = result["response"]["answer"] if "response" in result else "질의에 대한 응답을 받을 수 없습니다."
     return answer

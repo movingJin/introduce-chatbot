@@ -33,7 +33,7 @@ const MainFrame: React.FC = () => {
 
     try {
       // API 호출
-      const response = await getAnswer(content);
+      const response = await getAnswer('couple0', content);
 
       // 어시스턴트 메시지 추가
       const assistantMessage: ChatMessageType = {

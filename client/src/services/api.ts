@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ProfileMap, EditProfileRequest } from '../types';
+import type { ProfileList, EditProfileRequest } from '../types';
 
 // API Base URL - 환경 변수나 설정에서 관리할 수 있습니다
 const API_BASE_URL = '/api';
@@ -17,10 +17,10 @@ const api = axios.create({
  * @param query 사용자의 질문
  * @returns 응답 텍스트
  */
-export const getAnswer = async (query: string): Promise<string> => {
+export const getAnswer = async (chainId:string, query: string): Promise<string> => {
   try {
     const response = await api.get<string>('/answer', {
-      params: { query },
+      params: { chain_id: chainId, query },
     });
     return response.data;
   } catch (error) {
@@ -31,11 +31,14 @@ export const getAnswer = async (query: string): Promise<string> => {
 
 /**
  * 프로필 정보를 조회합니다
+ * @param userId 사용자 ID (기본값: "movingjin")
  * @returns 전체 프로필 데이터
  */
-export const getProfile = async (): Promise<ProfileMap> => {
+export const getProfile = async (userId: string): Promise<ProfileList> => {
   try {
-    const response = await api.get<ProfileMap>('/profile');
+    const response = await api.get<ProfileList>('/profile', {
+      params: { user_id: userId },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching profile:', error);

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import FileResponse
 from starlette.responses import JSONResponse
 
+from server.schema.profile import SearchCondition
 from server.services.profile import save_profile, load_profile
 from server.workflows.introduce_workflow import SummaryNode
 import os
@@ -17,8 +18,11 @@ class EditProfileRequest(BaseModel):
 
 
 @router.get("/profile")
-async def get_profile():
-    profile = load_profile()
+async def get_profile(user_id: str):
+    search_condition = SearchCondition(
+        user_id= [user_id]
+    )
+    profile = load_profile(search_condition=search_condition)
     return JSONResponse(
         content=json.loads(json.dumps(profile, ensure_ascii=False)),
         status_code=200
@@ -27,12 +31,8 @@ async def get_profile():
 @router.post("/profile/edit")
 async def edit_profile(req: EditProfileRequest):
     try:
-        # data 필드(JSON 문자열) 파싱
-        profile_data = load_profile()
-        profile_data[req.id] = req.data
         print(f"[INFO] Profile update for user {req.id}")
-        print("Parsed Data:", profile_data)
-        save_profile(profile_data)
+        save_profile(user_id=req.id, profile=req.data)
 
         return {
             "message": f"Profile for {req.id} updated successfully.",

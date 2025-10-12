@@ -1,0 +1,28 @@
+{
+  "index_patterns": [
+    "introduce-chatbot-profiles*"
+  ],
+  "composed_of": ["introduce-chatbot"],
+  "template": {
+    "mappings": {
+      "dynamic_templates": [
+        {
+          "custom_fields": {
+            "match_mapping_type": "*",
+            "match_pattern": "regex",
+            "unmatch": "created|last_edited|name|sex|date_of_birth|chain_id",
+            "mapping": {
+              "type": "text",
+              "analyzer": "search_nori_analyzer",
+              "fields": {
+                "keyword": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

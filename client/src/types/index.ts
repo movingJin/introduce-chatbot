@@ -8,9 +8,11 @@ export interface ProfileData {
   [key: string]: string | number | string[];
 }
 
-export interface ProfileMap {
-  [personId: string]: ProfileData;
+export interface Profile extends ProfileData {
+  user_id: string;
 }
+
+export type ProfileList = Profile[];
 
 export interface EditProfileRequest {
   id: string;

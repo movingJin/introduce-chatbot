@@ -1,0 +1,121 @@
+{
+  "template": {
+    "settings": {
+      "index.default_pipeline": "auto_now_add",
+      "index": {
+        "analysis": {
+          "filter": {
+            "search_shingle": {
+              "max_shingle_size": "3",
+              "token_separator": "",
+              "type": "shingle"
+            },
+            "length_filter": {
+              "type": "length",
+              "min": 2
+            },
+            "news_stop_filtering": {
+              "type": "stop",
+              "stopwords_path": "./dictionaries/news_stopwords.txt"
+            },
+            "nori_posfilter": {
+              "type": "nori_part_of_speech",
+              "stoptags": [
+                "E",
+                "IC",
+                "J",
+                "MAG",
+                "MM",
+                "NA",
+                "NR",
+                "NNB",
+                "NP",
+                "SC",
+                "SE",
+                "SF",
+                "SSC",
+                "SSO",
+                "SY",
+                "UNA",
+                "UNKNOWN",
+                "VA",
+                "VCN",
+                "VCP",
+                "VSV",
+                "VV",
+                "VX",
+                "XPN",
+                "XR",
+                "XSA",
+                "XSN",
+                "XSV"
+              ]
+            }
+          },
+          "analyzer": {
+            "search_nori_analyzer": {
+              "filter": [
+                "length_filter",
+                "lowercase"
+              ],
+              "tokenizer": "search_nori_tokenizer"
+            },
+            "keyword_analyzer": {
+              "type": "custom",
+              "tokenizer": "nori_user_dict",
+              "filter": [
+                "news_stop_filtering",
+                "nori_posfilter",
+                "keyword_repeat",
+                "length_filter",
+                "lowercase",
+                "nori_readingform",
+                "stop"
+              ]
+            }
+          },
+          "tokenizer": {
+            "search_nori_tokenizer": {
+              "type": "nori_tokenizer",
+              "decompound_mode": "discard"
+            },
+            "nori_user_dict": {
+              "type": "nori_tokenizer",
+              "decompound_mode": "mixed",
+              "user_dictionary": "dictionaries/userdict.txt"
+            }
+          }
+        },
+        "number_of_shards": "5"
+      }
+    },
+    "mappings": {
+      "properties": {
+        "created": {
+          "type": "date"
+        },
+        "last_edited": {
+          "type": "date"
+        },
+        "name": {
+          "type": "text",
+          "analyzer": "search_nori_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "sex": {
+          "type": "keyword"
+        },
+        "date_of_birth": {
+          "type": "date"
+        },
+        "chain_id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}

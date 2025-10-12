@@ -4,6 +4,9 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.graph import StateGraph, END
 from typing import Dict, Any, TypedDict
 from openai import ContentFilterFinishReasonError, BadRequestError
+
+from server.schema.profile import SearchCondition
+from server.services.profile import load_profile
 from server.utils.config import get_llm
 from pydantic import BaseModel
 from datetime import datetime
@@ -14,19 +17,10 @@ logger = logging.getLogger(__name__)
 this_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 class NodeState(TypedDict):
+    chain_id: str
     query: str
     answer: str
     current_step: str
-
-
-def load_json_file(file_name: str) -> Dict[str, Any]:
-    """json 파일 로드"""
-    try:
-        with open(file_name, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"데이터 로드 실패: {e}")
-        return {}
 
 
 class SummaryNode:
@@ -36,7 +30,6 @@ class SummaryNode:
         self.graph = self.setup_graph()  # 그래프 설정
         self.session_id = session_id  # langfuse 세션 ID
         self.llm = get_llm()
-        self.profile = load_json_file(this_dir + "/profile.json")
 
     def setup_graph(self):
         # 그래프 생성
@@ -49,9 +42,10 @@ class SummaryNode:
         # 그래프 컴파일
         return workflow.compile()
 
-    def run(self, query: str) -> Dict[str, Any]:
+    def run(self, chain_id:str, query: str) -> Dict[str, Any]:
         """단일 리드 처리"""
         initial_state = {
+            "chain_id": chain_id,
             "query": query,
             "answer": "",
             "current_step": "initialized"
@@ -73,7 +67,12 @@ class SummaryNode:
         }
 
     def answer_node(self, state: NodeState) -> NodeState:
-        """Report 요약 함수"""
+        """인물에 대한 질문의 답을 하는 함수"""
+        chain_id = state["chain_id"]
+        search_condition = SearchCondition(
+            chain_id=[chain_id]
+        )
+        profiles = load_profile(search_condition=search_condition)
         query = state["query"]
         state["current_step"] = "answer_node"
         if not query:
@@ -97,7 +96,7 @@ class SummaryNode:
                 - profile에 존재하지 않는 내용이라면, 모른다고 답변합니다.
                 - 현재시간은 {datetime.now()} 이야.
                 - profile:
-                {self.profile}
+                {profiles}
 
                 출력 형식:
                 - 답변을 Markdown 형식으로 정리해서 답변해주세요.
